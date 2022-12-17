@@ -4,6 +4,32 @@ import c from "./App.module.css";
 
 
 
+export const Timer = (props) => {
+  const [second, setSecond] = useState(props.second)
+
+  useEffect(() => {
+    setSecond(props.second)
+  }, [props.second])
+
+  useEffect(() => {
+    props.onChange(second)
+
+  }, [second])
+
+
+  useEffect(() => {
+    const intervalId= setInterval(() => {
+      console.log('tic')
+      setSecond((prev) => prev - 1)
+    }, 1000)
+    return ()=>{clearInterval(intervalId)}
+  }, [props.timerKey])
+
+  return (
+    <div>{second}</div>
+  )
+}
+
 
 export const Search = (props) => {
   //поиск юзеров
@@ -49,21 +75,28 @@ export const UsersList = (props) => {
 const UserDetails = (props) => {
   //отображение картички юзера
   const [ditailsUsers, setDetailsUsers] = useState(null)
+  const [second, setSecond] = useState(10)
 
   useEffect(() => {
     if (!!props.user) {
       axios.get(`https://api.github.com/users/${props.user.login}`).then(res => {
+        setSecond(10)
         setDetailsUsers(res.data)
       })
     }
   }, [props.user])
 
+  useEffect(() => {
+    if (second <= 1) {
+      setDetailsUsers(null)
+    }
+  }, [second])
   return (
     <div className="">
-      <h2>Username</h2>
       <div className="">
         {ditailsUsers && <div>
-         <h2> {ditailsUsers.login}</h2><br />
+          <Timer second={second} onChange={ setSecond}  timerKey={ditailsUsers.id}/>
+          <h2> {ditailsUsers.login}</h2><br />
           <img src={ditailsUsers.avatar_url} alt="user-logo" /><br />
           {ditailsUsers.followers}
 
